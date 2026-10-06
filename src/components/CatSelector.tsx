@@ -3,35 +3,48 @@ import { useAppearance } from "../stores/appearance";
 export function CatPreview({ type }: { type: CatType }) {
   const cat = CAT_TYPES.find((c) => c.id === type)!;
   return (
-    <svg
-      viewBox="0 0 24 32"
-      width="48"
-      height="64"
-      aria-hidden="true"
-      shapeRendering="crispEdges"
-    >
-      <path fill={cat.dark} d="M4 5h5v8h6V5h5v16h-1v7H5V21H4z" />
-      <path fill={cat.base} d="M4 11h16v10H4zM7 21h10v6H7zM2 20h3v7H2z" />
-      <path fill="#e9a3a1" d="M5 6h3v4H5zM16 6h3v4h-3z" />
-      {type === "calico" ? (
+    <svg viewBox="0 0 64 72" width="48" height="64" aria-hidden="true">
+      <ellipse cx="32" cy="67" rx="24" ry="4" fill="#7e8761" opacity=".15" />
+      <path d="M46 44L56 33L59 22L63 26L60 41L50 55Z" fill={cat.dark} />
+      <path d="M18 36L40 32L52 44L49 62L20 62L13 49Z" fill={cat.base} />
+      <path d="M40 32L52 44L49 62L39 58Z" fill={cat.dark} opacity=".55" />
+      <path
+        d="M18 54H27V68H16Z M37 55H46L48 68H36Z"
+        fill={type === "tuxedo" ? cat.mark : cat.base}
+      />
+      <path
+        d="M11 21L11 4L24 15L40 15L52 4L53 25L49 42L32 48L15 41L8 30Z"
+        fill={cat.base}
+      />
+      <path
+        d="M11 4L16 12L16 22L11 21Z M52 4L53 25L46 22L47 13Z"
+        fill={cat.dark}
+      />
+      <path d="M14 10L22 18L15 21Z M49 10L48 22L41 18Z" fill="#dba2a2" />
+      <path d="M8 30L21 37L32 48L15 41Z" fill={cat.dark} opacity=".3" />
+      {type === "calico" && (
         <>
-          <path fill={cat.mark} d="M4 11h6v7H4zM14 22h4v4h-4z" />
-          <path fill="#424148" d="M15 10h5v8h-5z" />
+          <path d="M15 21L24 17L29 27L21 32L13 29Z" fill={cat.mark} />
+          <path d="M41 19L51 24L49 37L41 34Z" fill="#44454b" />
+          <path d="M37 48L45 45L49 55L39 59Z" fill={cat.mark} />
         </>
-      ) : type === "tuxedo" ? (
-        <path fill={cat.mark} d="M9 19h6v8H9zM7 26h4v3H7zM14 26h4v3h-4z" />
-      ) : (
-        <path fill={cat.mark} d="M10 10h2v4h-2zM14 10h2v3h-2z" />
       )}
-      {type === "tabby" && (
+      {type === "tuxedo" && (
         <path
+          d="M27 34H38L39 44L32 48L26 43Z M26 48H37L39 59H25Z"
           fill={cat.mark}
-          d="M5 21h4v2H5zM15 23h4v2h-4zM4 17h3v2H4zM17 17h3v2h-3z"
         />
       )}
-      <path fill={cat.eyes} d="M8 15h2v3H8zM15 15h2v3h-2z" />
-      <path fill="#b56d61" d="M11 19h3v2h-3z" />
-      <path fill="#fff0cd" d="M9 21h6v2H9z" />
+      {(type === "orange" || type === "tabby") && (
+        <path
+          d="M26 16H29V23H27Z M33 15H36L35 23H33Z M40 16H42L40 23H38Z M42 46L49 47V50L41 49Z M41 52L50 53V56L41 55Z"
+          fill={cat.mark}
+        />
+      )}
+      <ellipse cx="22" cy="31" rx="2" ry="3" fill={cat.eyes} />
+      <ellipse cx="41" cy="31" rx="2" ry="3" fill={cat.eyes} />
+      <path d="M27 37L32 34L38 37L35 41H29Z" fill="#f6ead8" />
+      <path d="M29 35H35L32 38Z" fill="#b88084" />
     </svg>
   );
 }

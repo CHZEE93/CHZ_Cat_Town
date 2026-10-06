@@ -130,7 +130,7 @@ export function Guide() {
       <p className="muted">정해진 목표도, 서두를 이유도 없어요.</p>
       <div className="guide-row">
         <kbd>W A S D</kbd>
-        <span>또는 방향키로 마을을 걸어요.</span>
+        <span>또는 방향키로 화면 방향에 맞춰 걸어요.</span>
       </div>
       <div className="guide-row">
         <kbd>E</kbd>

@@ -1,12 +1,32 @@
+import { GameError } from "./GameError";
+import {
+  Component,
+  lazy,
+  Suspense,
+  useLayoutEffect,
+  type ReactNode,
+} from "react";
 import { useAppearance } from "../stores/appearance";
-import { useEffect, useRef } from "react";
-import Phaser from "phaser";
-import { TownScene } from "../game/scenes/TownScene";
 import { eventBus } from "../game/events/EventBus";
 import { useUI } from "../stores/ui";
+const TownCanvas = lazy(() => import("./TownCanvas"));
+class WorldBoundary extends Component<
+  { children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    useUI.getState().setReady();
+  }
+  render() {
+    return this.state.failed ? <GameError /> : this.props.children;
+  }
+}
 export function GameCanvas() {
-  const host = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const store = useUI.getState();
     const off = [
       eventBus.on("OPEN_BOARD", () => store.open("board")),
@@ -19,7 +39,7 @@ export function GameCanvas() {
         eventBus.emit("UI_BLOCKED", useUI.getState().modal !== null);
       }),
     ];
-    const unsub = useUI.subscribe((state, previous) => {
+    const offUI = useUI.subscribe((state, previous) => {
       if (state.modal !== previous.modal)
         eventBus.emit("UI_BLOCKED", state.modal !== null);
     });
@@ -27,41 +47,23 @@ export function GameCanvas() {
       if (state.catType !== previous.catType)
         eventBus.emit("SET_CAT", state.catType);
     });
-    const game = new Phaser.Game({
-      type: Phaser.CANVAS,
-      parent: host.current!,
-      backgroundColor: "#a6bb85",
-      pixelArt: true,
-      roundPixels: true,
-      scale: {
-        mode: Phaser.Scale.NONE,
-        width: host.current!.clientWidth,
-        height: host.current!.clientHeight,
-      },
-      physics: { default: "arcade", arcade: { debug: false } },
-      scene: [TownScene],
-      input: { keyboard: true },
-      banner: false,
-    });
-    const resize = new ResizeObserver(() => {
-      if (host.current)
-        game.scale.resize(host.current.clientWidth, host.current.clientHeight);
-    });
-    resize.observe(host.current!);
     return () => {
-      resize.disconnect();
       off.forEach((fn) => fn());
-      unsub();
+      offUI();
       offAppearance();
-      game.destroy(true);
     };
   }, []);
   return (
     <div
       className="game-canvas"
-      ref={host}
       role="application"
-      aria-label="고양이 마을. WASD 또는 방향키로 이동하고 E로 상호작용하세요."
-    />
+      aria-label="3D 고양이 마을. WASD 또는 방향키로 이동하고 E로 상호작용하세요."
+    >
+      <WorldBoundary>
+        <Suspense fallback={null}>
+          <TownCanvas />
+        </Suspense>
+      </WorldBoundary>
+    </div>
   );
 }

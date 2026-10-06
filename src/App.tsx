@@ -16,7 +16,7 @@ export default function App() {
           </span>
         </a>
         <div className="header-right">
-          <span className="version">PREVIEW v0.1</span>
+          <span className="version">3D PREVIEW v0.2</span>
           <span className="divider" />
           <button className="user-button" onClick={() => open("profile")}>
             <span className="avatar">🐈</span>CHZ
@@ -41,10 +41,13 @@ export default function App() {
             <p>가벼운 발걸음으로 산책하고, 작은 이야기를 만나세요.</p>
           </div>
           <div className="town-status">
-            <span /> 평화로운 오후 <span className="status-weather">☀ 24°</span>
+            <span /> 포근한 작은 마을 <span className="status-weather">3D</span>
           </div>
         </div>
-        <section className="town-frame" aria-label="플레이 가능한 고양이 마을">
+        <section
+          className="town-frame"
+          aria-label="플레이 가능한 3D 고양이 마을"
+        >
           <GameCanvas />
           <div className="town-tools">
             <button onClick={() => open("profile")}>고양이 선택</button>
@@ -55,7 +58,7 @@ export default function App() {
           <div className="map-label">
             <span className="map-symbol">⌘</span>
             <div>
-              치즈 마을<small>CHZ VILLAGE · 01</small>
+              치즈 마을<small>COZY 3D VILLAGE · 01</small>
             </div>
           </div>
           <div className="session-label">
