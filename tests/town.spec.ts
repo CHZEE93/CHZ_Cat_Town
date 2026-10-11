@@ -6,7 +6,7 @@ async function snapshot(page: Page): Promise<TownSnapshot> {
   return page.evaluate(() => window.__CHZ_TOWN__!());
 }
 async function boot(page: Page) {
-  await page.goto("/?debug=1");
+  await page.goto("/?debug=1#/game");
   await page.waitForFunction(
     () => Boolean(window.__CHZ_TOWN__),
     {},
@@ -145,7 +145,7 @@ test("fullscreen, resize, 6 cat models and persisted appearance", async ({
         .locator("canvas")
         .evaluate((c) => Math.round(c.getBoundingClientRect().width)),
     )
-    .toBe(672);
+    .toBe(666);
   await page.reload();
   await page.waitForFunction(() => Boolean(window.__CHZ_TOWN__));
   await expect.poll(async () => (await snapshot(page)).catType).toBe("calico");
@@ -202,5 +202,82 @@ test("normalized arrow-key movement, blur release, tree and house collision", as
   for (let i = 0; i < 10; i++) await steer(page, 0, -10);
   expect((await snapshot(page)).position.z).toBeGreaterThan(-7.95);
   expect((await snapshot(page)).position.z).toBeLessThan(-7.5);
+  expect(errors).toEqual([]);
+});
+
+test("home and game navigation keeps the town paused and preserves position", async ({
+  page,
+}) => {
+  const errors = watchErrors(page);
+  await page.goto("/?debug=1");
+  await expect(
+    page.getByRole("heading", { name: /다시 만나서/ }),
+  ).toBeVisible();
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await page.screenshot({
+    path: "test-results/home-dashboard.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "게시판 전체 보기" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Cat Board");
+  await page.keyboard.press("Escape");
+  await page.getByRole("link", { name: /마을 입장하기/ }).click();
+  await page.waitForFunction(
+    () => Boolean(window.__CHZ_TOWN__),
+    {},
+    { timeout: 60000 },
+  );
+  await expect(
+    page.getByRole("navigation").getByRole("link", { name: /^게임/ }),
+  ).toHaveAttribute("aria-current", "page");
+  const gameBounds = await page.locator("canvas").boundingBox();
+  expect(gameBounds!.height).toBeGreaterThan(900);
+  expect(gameBounds!.width).toBeGreaterThan(1150);
+  await page.keyboard.down("d");
+  await page.waitForTimeout(350);
+  await page.keyboard.up("d");
+  await page.waitForTimeout(200);
+  const before = (await snapshot(page)).position;
+  await page.getByRole("navigation").getByRole("link", { name: /^홈/ }).click();
+  await expect(
+    page.getByRole("heading", { name: /다시 만나서/ }),
+  ).toBeVisible();
+  await expect.poll(async () => (await snapshot(page)).blocked).toBe(true);
+  await page.keyboard.down("w");
+  await page.waitForTimeout(300);
+  await page.keyboard.up("w");
+  await page.getByRole("button", { name: /내 고양이 보기/ }).click();
+  await page.getByRole("button", { name: /삼색고양이/ }).click();
+  await page.keyboard.press("Escape");
+  expect((await snapshot(page)).blocked).toBe(true);
+  const paused = (await snapshot(page)).position;
+  expect(Math.hypot(paused.x - before.x, paused.z - before.z)).toBeLessThan(
+    0.15,
+  );
+  await page.goBack();
+  await expect(page.locator(".game-page")).toBeVisible();
+  await expect.poll(async () => (await snapshot(page)).blocked).toBe(false);
+  await expect.poll(async () => (await snapshot(page)).catType).toBe("calico");
+  await page.waitForTimeout(250);
+  const resumed = (await snapshot(page)).position;
+  expect(Math.hypot(resumed.x - before.x, resumed.z - before.z)).toBeLessThan(
+    0.2,
+  );
+  await page.screenshot({ path: "test-results/wide-game.png" });
+  await page.goForward();
+  await expect(
+    page.getByRole("heading", { name: /다시 만나서/ }),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(
+    page.getByRole("navigation").getByRole("link", { name: /^게임/ }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(390);
+  await page.screenshot({
+    path: "test-results/home-mobile.png",
+    fullPage: true,
+  });
   expect(errors).toEqual([]);
 });

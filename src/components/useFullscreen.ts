@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 export function useFullscreen() {
   const root = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -22,6 +22,11 @@ export function useFullscreen() {
       document.removeEventListener("keydown", escape);
     };
   }, [expanded]);
+  const exit = useCallback(async () => {
+    if (document.fullscreenElement === root.current)
+      await document.exitFullscreen();
+    setExpanded(false);
+  }, []);
   const toggle = async () => {
     if (expanded) {
       if (document.fullscreenElement === root.current)
@@ -36,5 +41,5 @@ export function useFullscreen() {
       }
     }
   };
-  return { root, expanded, toggle };
+  return { root, expanded, toggle, exit };
 }

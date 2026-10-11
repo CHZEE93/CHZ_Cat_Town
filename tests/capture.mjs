@@ -3,7 +3,7 @@ const browser = await chromium.launch({
   args: ["--enable-unsafe-swiftshader"],
 });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1050 } });
-await page.goto("http://localhost:5173");
+await page.goto("http://localhost:5173/#/game");
 await page
   .getByText("마을의 문을 여는 중…")
   .waitFor({ state: "hidden", timeout: 60000 });

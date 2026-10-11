@@ -4,9 +4,10 @@ import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { CatTownWorld } from "../game/world/CatTownWorld";
 import { THEME } from "../game/config/theme";
-export default function TownCanvas() {
+export default function TownCanvas({ active }: { active: boolean }) {
   return (
     <Canvas
+      frameloop={active ? "always" : "never"}
       shadows={{ type: PCFShadowMap }}
       dpr={[1, 1.5]}
       gl={{
@@ -35,7 +36,7 @@ export default function TownCanvas() {
         shadow-bias={-0.0001}
       />
       <Suspense fallback={null}>
-        <CatTownWorld />
+        <CatTownWorld active={active} />
       </Suspense>
     </Canvas>
   );

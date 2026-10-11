@@ -56,11 +56,16 @@ function TownContents() {
     </>
   );
 }
-export function CatTownWorld() {
+export function CatTownWorld({ active }: { active: boolean }) {
   const runtime = useMemo(createRuntime, []);
   return (
     <RuntimeContext.Provider value={runtime}>
-      <Physics gravity={[0, -9.81, 0]} timeStep={1 / 60} colliders={false}>
+      <Physics
+        paused={!active}
+        gravity={[0, -9.81, 0]}
+        timeStep={1 / 60}
+        colliders={false}
+      >
         <TownContents />
       </Physics>
     </RuntimeContext.Provider>

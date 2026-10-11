@@ -4,6 +4,7 @@ import {
   lazy,
   Suspense,
   useLayoutEffect,
+  useRef,
   type ReactNode,
 } from "react";
 import { useAppearance } from "../stores/appearance";
@@ -25,7 +26,12 @@ class WorldBoundary extends Component<
     return this.state.failed ? <GameError /> : this.props.children;
   }
 }
-export function GameCanvas() {
+export function GameCanvas({ active }: { active: boolean }) {
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  useLayoutEffect(() => {
+    eventBus.emit("UI_BLOCKED", !active || useUI.getState().modal !== null);
+  }, [active]);
   useLayoutEffect(() => {
     const store = useUI.getState();
     const off = [
@@ -36,12 +42,15 @@ export function GameCanvas() {
       eventBus.on("READY", () => {
         store.setReady();
         eventBus.emit("SET_CAT", useAppearance.getState().catType);
-        eventBus.emit("UI_BLOCKED", useUI.getState().modal !== null);
+        eventBus.emit(
+          "UI_BLOCKED",
+          !activeRef.current || useUI.getState().modal !== null,
+        );
       }),
     ];
     const offUI = useUI.subscribe((state, previous) => {
       if (state.modal !== previous.modal)
-        eventBus.emit("UI_BLOCKED", state.modal !== null);
+        eventBus.emit("UI_BLOCKED", !activeRef.current || state.modal !== null);
     });
     const offAppearance = useAppearance.subscribe((state, previous) => {
       if (state.catType !== previous.catType)
@@ -61,7 +70,7 @@ export function GameCanvas() {
     >
       <WorldBoundary>
         <Suspense fallback={null}>
-          <TownCanvas />
+          <TownCanvas active={active} />
         </Suspense>
       </WorldBoundary>
     </div>
