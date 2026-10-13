@@ -21,20 +21,6 @@ export default function TownCanvas({ active }: { active: boolean }) {
       <color attach="background" args={[THEME.background]} />
       <hemisphereLight args={["#fff7e4", "#c3cbb3", 2.1]} />
       <ambientLight intensity={0.35} />
-      <directionalLight
-        position={[-10, 22, 12]}
-        intensity={2.5}
-        color="#fff2d7"
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-camera-left={-25}
-        shadow-camera-right={25}
-        shadow-camera-top={25}
-        shadow-camera-bottom={-25}
-        shadow-camera-far={65}
-        shadow-normalBias={0.045}
-        shadow-bias={-0.0001}
-      />
       <Suspense fallback={null}>
         <CatTownWorld active={active} />
       </Suspense>

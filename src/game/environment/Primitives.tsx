@@ -1,3 +1,4 @@
+import { RoundedBox } from "@react-three/drei";
 import type { ThreeElements } from "@react-three/fiber";
 export type Vec3 = [number, number, number];
 type BoxProps = {
@@ -16,33 +17,34 @@ export function Box({
   name,
 }: BoxProps) {
   return (
-    <mesh
+    <RoundedBox
+      args={size}
+      radius={Math.min(0.065, Math.min(...size) * 0.2)}
+      smoothness={2}
+      bevelSegments={2}
       name={name}
       position={position}
       rotation={rotation}
       castShadow={shadow}
       receiveShadow
     >
-      <boxGeometry args={size} />
       <meshStandardMaterial color={color} roughness={0.88} />
-    </mesh>
+    </RoundedBox>
   );
 }
-export function Facet({
+export function SmoothShape({
   position,
   scale,
   color,
-  detail = 0,
 }: {
   position?: Vec3;
   scale: Vec3;
   color: string;
-  detail?: number;
 }) {
   return (
     <mesh position={position} scale={scale} castShadow receiveShadow>
-      <icosahedronGeometry args={[1, detail]} />
-      <meshStandardMaterial color={color} flatShading roughness={1} />
+      <sphereGeometry args={[1, 24, 16]} />
+      <meshStandardMaterial color={color} roughness={0.85} />
     </mesh>
   );
 }

@@ -10,10 +10,10 @@ export function FollowCamera() {
   const target = useMemo(() => new Vector3(SPAWN.x, 0.6, SPAWN.z - 2), []);
   useFrame((state, delta) => {
     if (!camera.current) return;
-    // Partial following keeps nearby landmarks in view; orientation never rotates.
+    // Follow across the whole town so the player stays visible near distant edges.
     const amount = 1 - Math.exp(-CAMERA.follow * Math.min(delta, 0.1));
-    target.x += (runtime.position.x * 0.65 - target.x) * amount;
-    target.z += (runtime.position.z * 0.65 - 2 - target.z) * amount;
+    target.x += (runtime.position.x - target.x) * amount;
+    target.z += (runtime.position.z - 2 - target.z) * amount;
     // Narrow screens pull back instead of cropping the player and nearby buildings.
     const distanceScale = state.size.width / state.size.height < 1.1 ? 1.28 : 1;
     camera.current.position.set(

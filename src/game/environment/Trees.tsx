@@ -6,15 +6,15 @@ export function Trees() {
   return (
     <>
       <Instances limit={TREES.length} castShadow receiveShadow>
-        <cylinderGeometry args={[0.18, 0.27, 1.9, 6]} />
+        <cylinderGeometry args={[0.18, 0.27, 1.9, 24]} />
         <meshStandardMaterial color={THEME.wood} />
         {TREES.map(([x, z], i) => (
           <Instance key={i} position={[x, 0.95, z]} />
         ))}
       </Instances>
       <Instances limit={TREES.length * 3} castShadow receiveShadow>
-        <icosahedronGeometry args={[1, 0]} />
-        <meshStandardMaterial flatShading roughness={1} />
+        <sphereGeometry args={[1, 24, 16]} />
+        <meshStandardMaterial roughness={0.9} />
         {TREES.flatMap(([x, z], i) => [
           <Instance
             key={`${i}a`}

@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Group, MathUtils } from "three";
 import { CAT_TYPES, type CatType } from "../config/cats";
-import { Box, Facet } from "../environment/Primitives";
+import { Box, SmoothShape } from "../environment/Primitives";
 import { useTownRuntime } from "../runtime/TownRuntime";
 import type { Equipment } from "../../types/api";
 import { CatAccessories } from "./CatAccessories";
@@ -44,17 +44,15 @@ export function CatModel({
     <group ref={group} position={[0, -0.62, 0]} name={`cat-${catType}`}>
       <group ref={body}>
         <CatAccessories equipped={equipped} />
-        <Facet
+        <SmoothShape
           position={[0, 0.65, -0.08]}
           scale={[0.43, 0.47, 0.68]}
           color={cat.base}
-          detail={1}
         />
-        <Facet
+        <SmoothShape
           position={[0, 1.02, 0.47]}
           scale={[0.54, 0.5, 0.47]}
           color={cat.base}
-          detail={1}
         />
         {[-1, 1].map((side) => (
           <group
@@ -78,49 +76,44 @@ export function CatModel({
             position={[side * 0.21, 1.07, 0.879]}
             scale={[1, 1.35, 0.6]}
           >
-            <sphereGeometry args={[0.055, 8, 6]} />
+            <sphereGeometry args={[0.055, 16, 12]} />
             <meshStandardMaterial color={cat.eyes} />
           </mesh>
         ))}
-        <Facet
+        <SmoothShape
           position={[0, 0.84, 0.87]}
           scale={[0.25, 0.14, 0.1]}
           color={catType === "black" ? cat.dark : "#f8e9d2"}
-          detail={1}
         />
-        <Facet
+        <SmoothShape
           position={[0, 0.95, 0.944]}
           scale={[0.062, 0.045, 0.032]}
           color="#be8283"
         />
         {catType === "calico" && (
           <>
-            <Facet
+            <SmoothShape
               position={[-0.29, 1.19, 0.7]}
               scale={[0.23, 0.2, 0.14]}
               color={cat.mark}
-              detail={1}
             />
-            <Facet
+            <SmoothShape
               position={[0.35, 0.94, 0.64]}
               scale={[0.16, 0.24, 0.23]}
               color="#44454b"
-              detail={1}
             />
-            <Facet
+            <SmoothShape
               position={[0.33, 0.72, -0.3]}
               scale={[0.16, 0.3, 0.3]}
               color={cat.mark}
-              detail={1}
             />
           </>
         )}
         {catType === "tuxedo" && (
-          <Facet
+          <SmoothShape
             position={[0, 0.65, 0.47]}
             scale={[0.3, 0.3, 0.2]}
             color={cat.mark}
-            detail={1}
           />
         )}
         {(catType === "tabby" || catType === "orange") && (
@@ -146,14 +139,13 @@ export function CatModel({
         )}
         <group ref={tail} position={[0, 0.74, -0.62]} rotation={[-0.55, 0, 0]}>
           <mesh position={[0, 0.25, 0]} castShadow>
-            <cylinderGeometry args={[0.09, 0.11, 0.62, 7]} />
+            <cylinderGeometry args={[0.09, 0.11, 0.62, 24]} />
             <meshStandardMaterial color={cat.base} />
           </mesh>
-          <Facet
+          <SmoothShape
             position={[0, 0.58, 0.04]}
             scale={[0.11, 0.17, 0.12]}
             color={catType === "calico" ? cat.dark : cat.base}
-            detail={1}
           />
         </group>
       </group>
@@ -167,14 +159,13 @@ export function CatModel({
             position={[side * 0.25, 0.4, z]}
           >
             <mesh position={[0, -0.15, 0]} castShadow>
-              <cylinderGeometry args={[0.11, 0.12, 0.38, 7]} />
+              <cylinderGeometry args={[0.11, 0.12, 0.38, 24]} />
               <meshStandardMaterial color={cat.base} />
             </mesh>
-            <Facet
+            <SmoothShape
               position={[0, -0.31, 0.055]}
               scale={[0.14, 0.1, 0.18]}
               color={catType === "tuxedo" ? cat.mark : cat.base}
-              detail={1}
             />
           </group>
         )),

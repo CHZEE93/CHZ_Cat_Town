@@ -7,7 +7,7 @@ import {
 } from "../runtime/TownRuntime";
 import { eventBus } from "../events/EventBus";
 import type { CatType } from "../config/cats";
-import { BUILDINGS } from "../config/constants";
+import { BUILDINGS, NEIGHBORHOOD } from "../config/constants";
 import { Ground } from "../environment/Ground";
 import { Trees } from "../environment/Trees";
 import { Building } from "../environment/Buildings";
@@ -16,6 +16,8 @@ import { CatShop } from "../environment/CatShop";
 import { CatBoard } from "../environment/CatBoard";
 import { Plaza } from "../environment/Plaza";
 import { Details } from "../environment/Details";
+import { GatheringSpaces } from "../environment/GatheringSpaces";
+import { TownLighting } from "../environment/TownLighting";
 import { CatPlayer } from "../player/CatPlayer";
 import { FollowCamera } from "../camera/FollowCamera";
 import { useInteraction } from "../interaction/useInteraction";
@@ -53,14 +55,23 @@ function TownContents() {
   }, [runtime]);
   return (
     <>
+      <TownLighting />
       <Ground />
       <Trees />
       <Building {...BUILDINGS.neighbor} title="LITTLE HOME" />
+      {NEIGHBORHOOD.map((house) => (
+        <Building
+          key={`${house.x},${house.z}`}
+          {...house}
+          title="LITTLE HOME"
+        />
+      ))}
       <CatHouse />
       <CatShop />
       <CatBoard />
       <Plaza />
       <Details />
+      <GatheringSpaces />
       <CatPlayer catType={catType} equipped={equipped} />
       <FollowCamera />
       {import.meta.env.DEV && <Diagnostics />}

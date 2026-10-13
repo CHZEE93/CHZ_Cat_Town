@@ -1,5 +1,5 @@
 import type { Equipment } from "../../types/api";
-import { Box, Facet } from "../environment/Primitives";
+import { Box, SmoothShape } from "../environment/Primitives";
 export function CatAccessories({ equipped }: { equipped: Equipment }) {
   return (
     <>
@@ -10,32 +10,32 @@ export function CatAccessories({ equipped }: { equipped: Equipment }) {
           rotation={[0, 0, -0.08]}
         >
           <mesh castShadow>
-            <cylinderGeometry args={[0.63, 0.63, 0.065, 12]} />
-            <meshStandardMaterial color="#e6c17b" flatShading />
+            <cylinderGeometry args={[0.63, 0.63, 0.065, 32]} />
+            <meshStandardMaterial color="#e6c17b" />
           </mesh>
           <mesh position={[0, 0.16, 0]} castShadow>
-            <cylinderGeometry args={[0.31, 0.37, 0.29, 10]} />
-            <meshStandardMaterial color="#eacb8b" flatShading />
+            <cylinderGeometry args={[0.31, 0.37, 0.29, 32]} />
+            <meshStandardMaterial color="#eacb8b" />
           </mesh>
           <mesh position={[0, 0.055, 0]}>
-            <cylinderGeometry args={[0.367, 0.375, 0.075, 10]} />
+            <cylinderGeometry args={[0.367, 0.375, 0.075, 32]} />
             <meshStandardMaterial color="#a36e53" />
           </mesh>
         </group>
       )}
       {equipped.neck === "red_ribbon" && (
         <group name="accessory-red-ribbon" position={[0, 0.64, 0.69]}>
-          <Facet
+          <SmoothShape
             position={[-0.16, 0, 0]}
             scale={[0.18, 0.13, 0.065]}
             color="#c96670"
           />
-          <Facet
+          <SmoothShape
             position={[0.16, 0, 0]}
             scale={[0.18, 0.13, 0.065]}
             color="#dd7d87"
           />
-          <Facet
+          <SmoothShape
             position={[0, 0, 0.035]}
             scale={[0.075, 0.075, 0.06]}
             color="#ac465a"

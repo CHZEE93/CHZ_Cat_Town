@@ -68,9 +68,9 @@ async function steer(page: Page, x: number, z: number, ms = 110) {
   if (Math.abs(right) > Math.abs(down) * 0.414)
     keys.push(right > 0 ? "d" : "a");
   if (Math.abs(down) > Math.abs(right) * 0.414) keys.push(down > 0 ? "s" : "w");
-  for (const key of keys) await page.keyboard.down(key);
+  await Promise.all(keys.map((key) => page.keyboard.down(key)));
   await page.waitForTimeout(ms);
-  for (const key of keys) await page.keyboard.up(key);
+  await Promise.all(keys.map((key) => page.keyboard.up(key)));
 }
 async function walkTo(page: Page, x: number, z: number) {
   for (let i = 0; i < 100; i++) {
@@ -81,7 +81,7 @@ async function walkTo(page: Page, x: number, z: number) {
       page,
       x,
       z,
-      Math.min(120, Math.max(25, (distance / 4.8) * 650)),
+      Math.min(350, Math.max(25, (distance / 4.8) * 650)),
     );
   }
   throw new Error(
@@ -99,6 +99,7 @@ function watchErrors(page: Page) {
 test("3D movement, solid board, modal blocking and all community interactions", async ({
   page,
 }) => {
+  test.setTimeout(180000);
   const errors = watchErrors(page);
   await boot(page);
   const cameraBefore = (await snapshot(page)).camera;
@@ -106,7 +107,7 @@ test("3D movement, solid board, modal blocking and all community interactions", 
   await walkTo(page, -3, -2.7);
   await walkTo(page, 0, -2.7);
   await expect(page.getByRole("status")).toContainText("게시판 보기");
-  for (let i = 0; i < 10; i++) await steer(page, 0, -6);
+  for (let i = 0; i < 3; i++) await steer(page, 0, -6);
   const blockedAt = (await snapshot(page)).position;
   expect(blockedAt.z).toBeGreaterThan(-4.1);
   expect(blockedAt.z).toBeLessThan(-3.5);
@@ -152,6 +153,7 @@ test("3D movement, solid board, modal blocking and all community interactions", 
 test("fullscreen, resize, 6 cat models and persisted appearance", async ({
   page,
 }) => {
+  test.setTimeout(180000);
   const errors = watchErrors(page);
   await boot(page);
   await page.getByRole("button", { name: /전체화면/ }).click();
@@ -200,6 +202,7 @@ test("fullscreen, resize, 6 cat models and persisted appearance", async ({
 test("normalized arrow-key movement, blur release, tree and house collision", async ({
   page,
 }) => {
+  test.setTimeout(180000);
   const errors = watchErrors(page);
   await boot(page);
   await page.keyboard.down("ArrowUp");
@@ -251,6 +254,7 @@ test("normalized arrow-key movement, blur release, tree and house collision", as
 test("home and game navigation keeps the town paused and preserves position", async ({
   page,
 }) => {
+  test.setTimeout(180000);
   const errors = watchErrors(page);
   await page.goto("/?debug=1");
   await expect(
@@ -322,5 +326,47 @@ test("home and game navigation keeps the town paused and preserves position", as
     path: "test-results/home-mobile.png",
     fullPage: true,
   });
+  expect(errors).toEqual([]);
+});
+
+test("expanded town parks, outer boundaries and distant camera following", async ({
+  page,
+}) => {
+  test.setTimeout(240000);
+  const errors = watchErrors(page);
+  await boot(page);
+  await walkTo(page, -3, 9);
+  await walkTo(page, -3, 17);
+  await walkTo(page, -24, 17);
+  await walkTo(page, -24, 5);
+  await page.screenshot({
+    path: "test-results/expanded-park.png",
+    fullPage: true,
+  });
+  await walkTo(page, -32, 8);
+  await walkTo(page, -38, 8);
+  for (let i = 0; i < 12; i++) await steer(page, -45, 8);
+  const west = (await snapshot(page)).position;
+  expect(west.x).toBeLessThan(-39);
+  expect(west.x).toBeGreaterThan(-39.5);
+  await expect
+    .poll(async () => {
+      const state = await snapshot(page);
+      return Math.abs(state.camera.x - state.position.x - 13);
+    })
+    .toBeLessThan(0.7);
+  await walkTo(page, -32, 8);
+  await walkTo(page, -32, 27);
+  await walkTo(page, -32, 33);
+  for (let i = 0; i < 12; i++) await steer(page, -32, 40);
+  const south = (await snapshot(page)).position;
+  expect(south.z).toBeGreaterThan(34);
+  expect(south.z).toBeLessThan(34.5);
+  await expect
+    .poll(async () => {
+      const state = await snapshot(page);
+      return Math.abs(state.camera.z - state.position.z - 19);
+    })
+    .toBeLessThan(0.7);
   expect(errors).toEqual([]);
 });

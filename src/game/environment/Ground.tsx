@@ -14,11 +14,11 @@ export function Ground() {
         {[-1, 1].map((side) => (
           <group key={side}>
             <CuboidCollider
-              args={[0.25, 2, WORLD.depth / 2]}
+              args={[WORLD.boundary, 2, WORLD.depth / 2 + WORLD.boundary]}
               position={[(side * WORLD.width) / 2, 1, 0]}
             />
             <CuboidCollider
-              args={[WORLD.width / 2, 2, 0.25]}
+              args={[WORLD.width / 2 + WORLD.boundary, 2, WORLD.boundary]}
               position={[0, 1, (side * WORLD.depth) / 2]}
             />
           </group>
@@ -44,19 +44,45 @@ export function Ground() {
       </RoundedBox>
       <Box
         position={[0, 0.012, 1]}
-        size={[3, 0.035, 23]}
+        size={[4, 0.035, 56]}
         color={THEME.path}
         shadow={false}
       />
       <Box
         position={[0, 0.018, 2.5]}
-        size={[23, 0.04, 3]}
+        size={[68, 0.04, 4]}
         color={THEME.path}
         shadow={false}
       />
       <mesh position={[0, 0.03, 1]} receiveShadow>
-        <cylinderGeometry args={[4.3, 4.3, 0.06, 12]} />
+        <cylinderGeometry args={[5.8, 5.8, 0.06, 48]} />
         <meshStandardMaterial color={THEME.paving} />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <group key={side}>
+          <Box
+            position={[side * 32, 0.012, 0]}
+            size={[3, 0.035, 54]}
+            color={THEME.path}
+            shadow={false}
+          />
+          <Box
+            position={[0, 0.012, side * 27]}
+            size={[64, 0.035, 3]}
+            color={THEME.path}
+            shadow={false}
+          />
+        </group>
+      ))}
+      <Box
+        position={[24, 0.012, -5]}
+        size={[3, 0.035, 18]}
+        color={THEME.path}
+        shadow={false}
+      />
+      <mesh position={[0, 0.025, 21]} receiveShadow>
+        <cylinderGeometry args={[7.5, 7.5, 0.035, 48]} />
+        <meshStandardMaterial color={THEME.foliageLight} roughness={1} />
       </mesh>
       {Array.from({ length: 7 }, (_, i) => (
         <Box
