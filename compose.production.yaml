@@ -1,0 +1,50 @@
+name: chz-cat-town-production
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chz
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: chz
+    volumes:
+      - town-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U chz -d chz]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://chz:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@db:5432/chz
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?Set the public HTTPS origin}
+      COOKIE_SECURE: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          CMD,
+          python,
+          -c,
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      target: production
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${WEB_PORT:-5180}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+volumes:
+  town-data:

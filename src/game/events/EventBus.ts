@@ -1,7 +1,9 @@
 import type { CatType } from "../config/cats";
 import type { Interactable } from "../config/constants";
+import type { Equipment } from "../../types/api";
 type Events = {
   SET_CAT: CatType;
+  SET_EQUIPMENT: Equipment;
   OPEN_BOARD: undefined;
   OPEN_SHOP: undefined;
   OPEN_PROFILE: undefined;

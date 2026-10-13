@@ -20,9 +20,15 @@ import { CatPlayer } from "../player/CatPlayer";
 import { FollowCamera } from "../camera/FollowCamera";
 import { useInteraction } from "../interaction/useInteraction";
 import { Diagnostics } from "../dev/Diagnostics";
+import type { Equipment } from "../../types/api";
 function TownContents() {
   const runtime = useTownRuntime();
   const [catType, setCatType] = useState<CatType>("orange");
+  const [equipped, setEquipped] = useState<Equipment>({
+    head: null,
+    neck: null,
+    back: null,
+  });
   useInteraction();
   useEffect(() => {
     const offBlocked = eventBus.on("UI_BLOCKED", (blocked) => {
@@ -34,10 +40,15 @@ function TownContents() {
       runtime.catType = value;
       setCatType(value);
     });
+    const offEquipment = eventBus.on("SET_EQUIPMENT", (value) => {
+      runtime.equipped = value;
+      setEquipped(value);
+    });
     eventBus.emit("READY", undefined);
     return () => {
       offBlocked();
       offCat();
+      offEquipment();
     };
   }, [runtime]);
   return (
@@ -50,7 +61,7 @@ function TownContents() {
       <CatBoard />
       <Plaza />
       <Details />
-      <CatPlayer catType={catType} />
+      <CatPlayer catType={catType} equipped={equipped} />
       <FollowCamera />
       {import.meta.env.DEV && <Diagnostics />}
     </>

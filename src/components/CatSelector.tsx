@@ -48,16 +48,32 @@ export function CatPreview({ type }: { type: CatType }) {
     </svg>
   );
 }
-export function CatSelector() {
-  const { catType, select } = useAppearance();
+export function CatSelector({
+  value,
+  onChange,
+  disabled = false,
+}: {
+  value?: CatType;
+  onChange?: (cat: CatType) => void;
+  disabled?: boolean;
+}) {
+  const appearance = useAppearance();
+  const catType = value ?? appearance.catType;
+  const select = onChange ?? appearance.select;
   return (
     <section className="cat-selector" aria-label="고양이 선택">
       <h3>어떤 고양이로 산책할까요?</h3>
-      <p>선택하면 바로 적용되고, 다음 방문에도 기억해요.</p>
+      <p>
+        {onChange
+          ? "마음에 드는 모습을 고르고 저장해 주세요."
+          : "비회원 외형은 이 브라우저에 기억해요."}
+      </p>
       <div className="cat-options">
         {CAT_TYPES.map((cat) => (
           <button
             key={cat.id}
+            type="button"
+            disabled={disabled}
             className="cat-option"
             aria-pressed={catType === cat.id}
             onClick={() => select(cat.id)}

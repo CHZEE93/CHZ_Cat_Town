@@ -6,6 +6,7 @@ import { GamePage } from "./components/GamePage";
 import { useFullscreen } from "./components/useFullscreen";
 import { Board, Shop, Profile, Guide } from "./features/Community";
 import { useUI } from "./stores/ui";
+import { AuthModal } from "./features/auth/AuthModal";
 export default function App() {
   const page = usePage();
   const [sidebarHidden, setSidebarHidden] = useState(() => {
@@ -37,12 +38,13 @@ export default function App() {
     >
       <button
         className="skip-link"
+        inert={modal !== null}
         onClick={() => document.getElementById("main-content")?.focus()}
       >
         본문으로 이동
       </button>
       <Sidebar page={page} hidden={sidebarHidden} />
-      <div className="workspace">
+      <div className="workspace" inert={modal !== null}>
         <header className="workspace-header">
           <div className="workspace-heading">
             <button
@@ -96,6 +98,8 @@ export default function App() {
         <Profile />
       ) : modal === "guide" ? (
         <Guide />
+      ) : modal === "auth" ? (
+        <AuthModal />
       ) : null}
     </div>
   );

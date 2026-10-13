@@ -4,10 +4,12 @@ export function Modal({
   title,
   eyebrow,
   children,
+  busy = false,
 }: {
   title: string;
   eyebrow: string;
   children: ReactNode;
+  busy?: boolean;
 }) {
   const close = useUI((s) => s.open);
   const panel = useRef<HTMLDivElement>(null);
@@ -15,10 +17,10 @@ export function Modal({
     const before = document.activeElement as HTMLElement | null;
     panel.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close(null);
+      if (e.key === "Escape" && !busy) close(null);
       if (e.key === "Tab") {
         const nodes = panel.current?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled),[href],input,[tabindex="0"]',
+          'button:not(:disabled),[href],input:not(:disabled),textarea:not(:disabled),select:not(:disabled),[tabindex="0"]',
         );
         if (!nodes?.length) {
           e.preventDefault();
@@ -48,12 +50,12 @@ export function Modal({
       document.removeEventListener("keydown", onKey);
       before?.focus();
     };
-  }, [close]);
+  }, [close, busy]);
   return (
     <div
       className="modal-backdrop"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) close(null);
+        if (e.target === e.currentTarget && !busy) close(null);
       }}
     >
       <div
@@ -64,7 +66,12 @@ export function Modal({
         ref={panel}
         tabIndex={-1}
       >
-        <button className="close" aria-label="닫기" onClick={() => close(null)}>
+        <button
+          className="close"
+          aria-label="닫기"
+          disabled={busy}
+          onClick={() => close(null)}
+        >
           ×
         </button>
         <span className="eyebrow">{eyebrow}</span>

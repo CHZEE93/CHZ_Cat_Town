@@ -2,6 +2,49 @@ import { test, expect, type Page } from "@playwright/test";
 import type { TownSnapshot } from "../src/game/dev/Diagnostics";
 const COS = 21 / Math.hypot(13, 21),
   SIN = 13 / Math.hypot(13, 21);
+// Keep movement regressions independent of a running API and account data.
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/auth/session", (route) =>
+    route.fulfill({ json: { user: null, csrfToken: null, character: null } }),
+  );
+  await page.route("**/api/posts*", (route) =>
+    route.fulfill({
+      json: {
+        items: [
+          {
+            id: 1,
+            authorId: 1,
+            title: "오늘 처음 왔어요!",
+            author: "모찌",
+            category: "인사",
+            body: "작고 포근한 마을이네요. 앞으로 잘 부탁해요!",
+            createdAt: "2026-10-01T00:00:00Z",
+            updatedAt: "2026-10-01T00:00:00Z",
+          },
+        ],
+        nextCursor: null,
+      },
+    }),
+  );
+  await page.route("**/api/shop/products", (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: 1,
+          price: 300,
+          item: {
+            id: "straw_hat",
+            name: "산책 밀짚모자",
+            description: "햇살 좋은 날",
+            slot: "head",
+            assetKey: "straw_hat",
+            icon: "👒",
+          },
+        },
+      ],
+    }),
+  );
+});
 async function snapshot(page: Page): Promise<TownSnapshot> {
   return page.evaluate(() => window.__CHZ_TOWN__!());
 }
@@ -100,7 +143,7 @@ test("3D movement, solid board, modal blocking and all community interactions", 
   await walkTo(page, 10, 3);
   await expect(page.getByRole("status")).toContainText("상점 둘러보기");
   await page.keyboard.press("e");
-  await expect(page.getByRole("dialog")).toContainText("발바닥 쿠션");
+  await expect(page.getByRole("dialog")).toContainText("산책 밀짚모자");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeHidden();
   await page.screenshot({ path: "test-results/3d-town.png", fullPage: true });

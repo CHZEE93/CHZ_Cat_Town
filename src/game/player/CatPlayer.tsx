@@ -8,7 +8,14 @@ import { PLAYER_RADIUS, SPAWN } from "../config/constants";
 import type { CatType } from "../config/cats";
 import { usePlayerMovement } from "./usePlayerMovement";
 import { CatModel } from "./CatModel";
-export function CatPlayer({ catType }: { catType: CatType }) {
+import type { Equipment } from "../../types/api";
+export function CatPlayer({
+  catType,
+  equipped,
+}: {
+  catType: CatType;
+  equipped: Equipment;
+}) {
   const body = useRef<RapierRigidBody>(null);
   usePlayerMovement(body);
   return (
@@ -27,7 +34,7 @@ export function CatPlayer({ catType }: { catType: CatType }) {
       canSleep={false}
     >
       <CapsuleCollider args={[0.26, PLAYER_RADIUS]} friction={0} />
-      <CatModel catType={catType} />
+      <CatModel catType={catType} equipped={equipped} />
     </RigidBody>
   );
 }

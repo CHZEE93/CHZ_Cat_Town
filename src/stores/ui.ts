@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { Interactable, Place } from "../game/config/constants";
 interface UIState {
-  modal: Place | "guide" | null;
+  modal: Place | "guide" | "auth" | null;
   nearby: Interactable | null;
   ready: boolean;
   open: (modal: UIState["modal"]) => void;

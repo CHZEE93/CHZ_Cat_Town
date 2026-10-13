@@ -4,6 +4,8 @@ import { useUI } from "../../stores/ui";
 import { useAppearance } from "../../stores/appearance";
 import { CAT_TYPES } from "../../game/config/cats";
 import { CatPreview } from "../../components/CatSelector";
+import { useAuth } from "../../stores/auth";
+import { AuthPrompt } from "../auth/AuthModal";
 function WelcomeIllustration() {
   return (
     <svg className="welcome-art" viewBox="0 0 440 280" aria-hidden="true">
@@ -51,18 +53,27 @@ function WelcomeIllustration() {
 export function HomePage() {
   const open = useUI((s) => s.open);
   const catType = useAppearance((s) => s.catType);
+  const user = useAuth((s) => s.user);
+  const wallet = useQuery({
+    queryKey: ["wallet", user?.id],
+    queryFn: townService.wallet,
+    enabled: !!user,
+  });
   const cat = CAT_TYPES.find((c) => c.id === catType)!;
   const {
     data: posts,
     isPending,
     isError,
-  } = useQuery({ queryKey: ["posts"], queryFn: townService.posts });
+  } = useQuery({
+    queryKey: ["posts"],
+    queryFn: ({ signal }) => townService.posts(signal),
+  });
   return (
     <main className="home-page" id="main-content" tabIndex={-1}>
       <div className="home-heading">
         <span className="eyebrow">YOUR COZY CORNER</span>
         <h1>
-          다시 만나서 반가워요, CHZ <span>✳</span>
+          다시 만나서 반가워요, {user?.nickname ?? "여행자"} <span>✳</span>
         </h1>
         <p>잠깐 쉬어가도 좋아요. 오늘의 작은 이야기는 여기서 시작해요.</p>
       </div>
@@ -86,21 +97,20 @@ export function HomePage() {
         </div>
         <WelcomeIllustration />
       </section>
+      {!user && <AuthPrompt />}
       <div className="dashboard-grid">
         <section className="dashboard-card stories-card">
           <div className="card-heading">
             <div>
               <span className="eyebrow">FROM THE NEIGHBORHOOD</span>
-              <h2>
-                마을 이야기 <span className="sample-badge">샘플</span>
-              </h2>
+              <h2>마을 이야기</h2>
             </div>
             <button onClick={() => open("board")} aria-label="게시판 전체 보기">
               전체 보기 ↗
             </button>
           </div>
           <p className="card-description">
-            이웃들이 남긴 소소한 안부를 미리 만나보세요.
+            이웃들이 남긴 소소한 안부를 만나보세요.
           </p>
           {isPending ? (
             <p className="muted">이야기를 불러오는 중…</p>
@@ -108,7 +118,12 @@ export function HomePage() {
             <p className="muted">이야기를 불러오지 못했어요.</p>
           ) : (
             <div className="home-posts">
-              {posts?.slice(0, 3).map((post) => (
+              {!posts?.items.length && (
+                <p className="empty-state">
+                  아직 이야기가 없어요. 첫 인사를 남겨 주세요.
+                </p>
+              )}
+              {posts?.items.slice(0, 3).map((post) => (
                 <button key={post.id} onClick={() => open("board")}>
                   <span className="story-avatar" aria-hidden="true">
                     {post.author.slice(0, 1)}
@@ -124,22 +139,25 @@ export function HomePage() {
               ))}
             </div>
           )}
-          <p className="sample-note">
-            실제 게시글이 아닌 대시보드 미리보기 데이터예요.
-          </p>
         </section>
         <section className="dashboard-card resident-card">
           <span className="eyebrow">MY LITTLE NEIGHBOR</span>
-          <h2>
-            오늘의 나 <span className="sample-badge">샘플 프로필</span>
-          </h2>
+          <h2>오늘의 나</h2>
           <div className="home-cat">
             <CatPreview type={catType} />
           </div>
-          <h3>CHZ</h3>
+          <h3>{user?.nickname ?? "여행자"}</h3>
           <p>{cat.name} · 가벼운 산책 준비 완료</p>
           <button className="secondary-button" onClick={() => open("profile")}>
             내 고양이 보기 <span>↗</span>
+          </button>
+          {user && (
+            <p className="home-wallet">
+              내 코인 · {wallet.data?.balance.toLocaleString() ?? "…"}
+            </p>
+          )}
+          <button className="text-button" onClick={() => open("shop")}>
+            상점 둘러보기 ↗
           </button>
         </section>
       </div>

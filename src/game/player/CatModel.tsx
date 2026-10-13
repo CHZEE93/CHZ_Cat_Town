@@ -4,7 +4,15 @@ import { Group, MathUtils } from "three";
 import { CAT_TYPES, type CatType } from "../config/cats";
 import { Box, Facet } from "../environment/Primitives";
 import { useTownRuntime } from "../runtime/TownRuntime";
-export function CatModel({ catType }: { catType: CatType }) {
+import type { Equipment } from "../../types/api";
+import { CatAccessories } from "./CatAccessories";
+export function CatModel({
+  catType,
+  equipped,
+}: {
+  catType: CatType;
+  equipped: Equipment;
+}) {
   const cat = CAT_TYPES.find((item) => item.id === catType)!;
   const group = useRef<Group>(null),
     body = useRef<Group>(null),
@@ -35,6 +43,7 @@ export function CatModel({ catType }: { catType: CatType }) {
   return (
     <group ref={group} position={[0, -0.62, 0]} name={`cat-${catType}`}>
       <group ref={body}>
+        <CatAccessories equipped={equipped} />
         <Facet
           position={[0, 0.65, -0.08]}
           scale={[0.43, 0.47, 0.68]}

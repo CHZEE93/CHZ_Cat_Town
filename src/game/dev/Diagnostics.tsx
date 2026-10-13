@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import { useTownRuntime } from "../runtime/TownRuntime";
+import type { Equipment } from "../../types/api";
 // Read-only development telemetry for real-keyboard browser regression tests.
 // No teleport, input injection, or production debugging API.
 export interface TownSnapshot {
@@ -10,6 +11,7 @@ export interface TownSnapshot {
   walking: boolean;
   blocked: boolean;
   catType: string;
+  equipped: Equipment;
   drawCalls: number;
 }
 declare global {
@@ -45,6 +47,7 @@ export function Diagnostics() {
       walking: runtime.walking,
       blocked: runtime.blocked,
       catType: runtime.catType,
+      equipped: { ...runtime.equipped },
       drawCalls: gl.info.render.calls,
     });
     window.__CHZ_TOWN__ = snapshot;

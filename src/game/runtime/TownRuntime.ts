@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import { Vector3 } from "three";
 import { SPAWN } from "../config/constants";
+import type { Equipment } from "../../types/api";
 export function createRuntime() {
   return {
     position: new Vector3(SPAWN.x, SPAWN.y, SPAWN.z),
@@ -10,6 +11,7 @@ export function createRuntime() {
     blocked: false,
     keys: new Set<string>(),
     catType: "orange",
+    equipped: { head: null, neck: null, back: null } as Equipment,
     elapsed: 0,
   };
 }
