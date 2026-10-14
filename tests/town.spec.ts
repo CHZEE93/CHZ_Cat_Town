@@ -370,3 +370,49 @@ test("expanded town parks, outer boundaries and distant camera following", async
     .toBeLessThan(0.7);
   expect(errors).toEqual([]);
 });
+
+test("guest cat size updates model and collider without resetting position", async ({
+  page,
+}) => {
+  const errors = watchErrors(page);
+  try {
+    await boot(page);
+  } catch (error) {
+    throw new Error(errors.join("\n") || String(error));
+  }
+  await page.keyboard.down("d");
+  await page.waitForTimeout(250);
+  await page.keyboard.up("d");
+  await page.getByRole("button", { name: "고양이 선택", exact: true }).click();
+  const before = (await snapshot(page)).position;
+  const slider = page.getByRole("slider", { name: "고양이 크기", exact: true });
+  await slider.focus();
+  await slider.press("End");
+  await expect(slider).toHaveValue("1.5");
+  await expect.poll(async () => (await snapshot(page)).scale).toBe(1.5);
+  await expect
+    .poll(async () => (await snapshot(page)).colliderRadius)
+    .toBeCloseTo(0.51, 4);
+  await expect
+    .poll(async () => (await snapshot(page)).position.y)
+    .toBeCloseTo(0.96, 4);
+  const large = (await snapshot(page)).position;
+  expect(Math.hypot(large.x - before.x, large.z - before.z)).toBeLessThan(0.05);
+  await slider.press("Home");
+  await expect
+    .poll(async () => (await snapshot(page)).colliderRadius)
+    .toBeCloseTo(0.255, 4);
+  await page.getByRole("button", { name: "기본 크기로", exact: true }).click();
+  await expect(slider).toHaveValue("1");
+  await slider.focus();
+  await slider.press("End");
+  await page.getByRole("button", { name: "닫기", exact: true }).click();
+  await page.screenshot({ path: "test-results/large-cat.png" });
+  await page.reload();
+  await page.waitForFunction(() => !!window.__CHZ_TOWN__);
+  await expect.poll(async () => (await snapshot(page)).scale).toBe(1.5);
+  await expect
+    .poll(async () => (await snapshot(page)).colliderRadius)
+    .toBeCloseTo(0.51, 4);
+  expect(errors).toEqual([]);
+});

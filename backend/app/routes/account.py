@@ -39,6 +39,8 @@ def update_character(data: CharacterUpdate, user: User = Depends(require_user), 
         if item_id:
             db.add(CharacterEquipment(user_id=user.id, slot=slot, item_id=item_id))
     character.cat_type = data.catType
+    if data.scale is not None:
+        character.scale = data.scale
     character.version += 1
     db.commit()
     return character_view(db, user.id)

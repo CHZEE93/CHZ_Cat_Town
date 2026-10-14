@@ -11,6 +11,8 @@ export interface TownSnapshot {
   walking: boolean;
   blocked: boolean;
   catType: string;
+  scale: number;
+  colliderRadius: number;
   equipped: Equipment;
   drawCalls: number;
 }
@@ -47,6 +49,8 @@ export function Diagnostics() {
       walking: runtime.walking,
       blocked: runtime.blocked,
       catType: runtime.catType,
+      scale: runtime.scale,
+      colliderRadius: runtime.colliderRadius,
       equipped: { ...runtime.equipped },
       drawCalls: gl.info.render.calls,
     });

@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CatPreview, CatSelector } from "../../components/CatSelector";
+import { CatSizeControl } from "../../components/CatSizeControl";
 import { Modal } from "../../components/Modal";
 import { CAT_TYPES } from "../../game/config/cats";
 import { townService } from "../../api/townService";
@@ -45,14 +46,28 @@ const slotNames: Record<Slot, string> = {
 export function Profile() {
   const { user, loading } = useAuth();
   const catType = useAppearance((s) => s.catType);
+  const scale = useAppearance((s) => s.scale);
   if (!user)
     return (
       <Modal title="My little home" eyebrow="반가워요, 이웃 고양이">
         <div className="profile-cat">
-          <CatPreview type={catType} />
+          <div
+            style={{
+              transform: `scale(${scale})`,
+              transformOrigin: "center bottom",
+            }}
+          >
+            <CatPreview type={catType} />
+          </div>
         </div>
         <h3>{CAT_TYPES.find((cat) => cat.id === catType)!.english}</h3>
         <AuthPrompt />
+        {!loading && (
+          <CatSizeControl
+            value={scale}
+            onChange={useAppearance.getState().selectSize}
+          />
+        )}
         {!loading && <CatSelector />}
       </Modal>
     );
@@ -196,6 +211,11 @@ function ResidentProfile({ user }: { user: User }) {
       <p className="preview-caption">
         드래그해서 돌려보세요 · 저장 전까지는 미리보기예요.
       </p>
+      <CatSizeControl
+        value={draft.scale}
+        disabled={busy}
+        onChange={(scale) => preview({ ...draft, scale })}
+      />
       <CatSelector
         value={draft.catType}
         disabled={busy}

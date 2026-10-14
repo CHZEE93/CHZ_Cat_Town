@@ -26,6 +26,7 @@ import type { Equipment } from "../../types/api";
 function TownContents() {
   const runtime = useTownRuntime();
   const [catType, setCatType] = useState<CatType>("orange");
+  const [scale, setScale] = useState(1);
   const [equipped, setEquipped] = useState<Equipment>({
     head: null,
     neck: null,
@@ -42,6 +43,7 @@ function TownContents() {
       runtime.catType = value;
       setCatType(value);
     });
+    const offSize = eventBus.on("SET_SIZE", setScale);
     const offEquipment = eventBus.on("SET_EQUIPMENT", (value) => {
       runtime.equipped = value;
       setEquipped(value);
@@ -50,6 +52,7 @@ function TownContents() {
     return () => {
       offBlocked();
       offCat();
+      offSize();
       offEquipment();
     };
   }, [runtime]);
@@ -72,7 +75,7 @@ function TownContents() {
       <Plaza />
       <Details />
       <GatheringSpaces />
-      <CatPlayer catType={catType} equipped={equipped} />
+      <CatPlayer catType={catType} equipped={equipped} scale={scale} />
       <FollowCamera />
       {import.meta.env.DEV && <Diagnostics />}
     </>

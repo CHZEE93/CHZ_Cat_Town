@@ -10,7 +10,7 @@ def character_view(db: Session, user_id: int):
     equipped = {"head": None, "neck": None, "back": None}
     for row in db.scalars(select(CharacterEquipment).where(CharacterEquipment.user_id == user_id)):
         equipped[row.slot] = row.item_id
-    return {"catType": character.cat_type, "version": character.version, "equipped": equipped}
+    return {"catType": character.cat_type, "scale": character.scale, "version": character.version, "equipped": equipped}
 
 def item_view(item: ItemDefinition):
     return {"id": item.id, "name": item.name, "description": item.description, "slot": item.slot, "assetKey": item.asset_key, "icon": item.icon}

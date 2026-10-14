@@ -136,3 +136,22 @@ def test_competing_products_cannot_overspend(resident):
     assert sorted(response.status_code for response in responses) == [200, 400]
     assert resident.get("/api/wallet/me").json()["balance"] in [200, 50]
     assert len(resident.get("/api/inventory/me").json()) == 1
+
+def test_character_size_validation_persistence_and_legacy_update(resident):
+    original = resident.get("/api/characters/me").json()
+    assert original["scale"] == 1
+    for invalid in [0.74, 1.51, -1, "NaN", "Infinity"]:
+        assert resident.patch("/api/characters/me", json={**original, "scale": invalid}).status_code == 422
+    saved = resident.patch("/api/characters/me", json={**original, "scale": 1.5}).json()
+    assert saved["scale"] == 1.5 and saved["version"] == 2
+    assert resident.get("/api/auth/session").json()["character"]["scale"] == 1.5
+    assert resident.patch("/api/characters/me", json={**original, "scale": 0.75}).status_code == 409
+    legacy = {key: value for key, value in saved.items() if key != "scale"}
+    assert resident.patch("/api/characters/me", json=legacy).json()["scale"] == 1.5
+    current = resident.get("/api/characters/me").json()
+    assert resident.patch("/api/characters/me", json={**current, "scale": 0.75}).json()["scale"] == 0.75
+
+def test_signup_remembers_guest_size(client):
+    data = {"email": "size@example.com", "password": "a-safe-password", "nickname": "큰 고양이", "scale": 1.25}
+    assert client.post("/api/auth/signup", json={**data, "scale": 2}).status_code == 422
+    assert client.post("/api/auth/signup", json=data).json()["character"]["scale"] == 1.25

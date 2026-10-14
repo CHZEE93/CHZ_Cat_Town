@@ -42,6 +42,7 @@ export function GameCanvas({ active }: { active: boolean }) {
       eventBus.on("READY", () => {
         store.setReady();
         eventBus.emit("SET_CAT", useAppearance.getState().catType);
+        eventBus.emit("SET_SIZE", useAppearance.getState().scale);
         eventBus.emit("SET_EQUIPMENT", useAppearance.getState().equipped);
         eventBus.emit(
           "UI_BLOCKED",
@@ -56,6 +57,8 @@ export function GameCanvas({ active }: { active: boolean }) {
     const offAppearance = useAppearance.subscribe((state, previous) => {
       if (state.catType !== previous.catType)
         eventBus.emit("SET_CAT", state.catType);
+      if (state.scale !== previous.scale)
+        eventBus.emit("SET_SIZE", state.scale);
       if (state.equipped !== previous.equipped)
         eventBus.emit("SET_EQUIPMENT", state.equipped);
     });

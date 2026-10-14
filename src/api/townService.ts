@@ -24,10 +24,11 @@ export const townService = {
     password: string,
     nickname: string,
     catType: CatType,
+    scale = 1,
   ) =>
     request<Session>(
       "/auth/signup",
-      json("POST", { email, password, nickname, catType }),
+      json("POST", { email, password, nickname, catType, scale }),
     ),
   logout: () => request<void>("/auth/logout", json("POST")),
   posts: (signal?: AbortSignal, before?: number) =>

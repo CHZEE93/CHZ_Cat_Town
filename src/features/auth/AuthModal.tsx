@@ -51,6 +51,7 @@ export function AuthModal() {
             password,
             nickname.trim(),
             useAppearance.getState().catType,
+            useAppearance.getState().scale,
           )
         : await townService.login(email, password);
       useAuth.getState().accept(session);

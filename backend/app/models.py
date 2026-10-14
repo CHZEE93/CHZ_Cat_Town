@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import String, Integer, DateTime, ForeignKey, ForeignKeyConstraint, CheckConstraint, UniqueConstraint, Text, Boolean
+from sqlalchemy import String, Integer, Float, DateTime, ForeignKey, ForeignKeyConstraint, CheckConstraint, UniqueConstraint, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from .database import Base
 
@@ -26,8 +26,12 @@ class Character(Base):
     __tablename__ = "characters"
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     cat_type: Mapped[str] = mapped_column(String(20), default="orange")
+    scale: Mapped[float] = mapped_column(Float, default=1.0, server_default="1")
     version: Mapped[int] = mapped_column(Integer, default=1)
-    __table_args__ = (CheckConstraint("cat_type IN ('orange','calico','tuxedo','tabby','black','white')", name="valid_cat_type"),)
+    __table_args__ = (
+        CheckConstraint("cat_type IN ('orange','calico','tuxedo','tabby','black','white')", name="valid_cat_type"),
+        CheckConstraint("scale >= 0.75 AND scale <= 1.5", name="valid_character_scale"),
+    )
 
 class ItemDefinition(Base):
     __tablename__ = "item_definitions"

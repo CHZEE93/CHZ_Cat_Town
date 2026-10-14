@@ -11,6 +11,8 @@ export function createRuntime() {
     blocked: false,
     keys: new Set<string>(),
     catType: "orange",
+    scale: 1,
+    colliderRadius: 0,
     equipped: { head: null, neck: null, back: null } as Equipment,
     elapsed: 0,
   };

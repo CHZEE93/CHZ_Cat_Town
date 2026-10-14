@@ -9,9 +9,11 @@ import { CatAccessories } from "./CatAccessories";
 export function CatModel({
   catType,
   equipped,
+  scale = 1,
 }: {
   catType: CatType;
   equipped: Equipment;
+  scale?: number;
 }) {
   const cat = CAT_TYPES.find((item) => item.id === catType)!;
   const group = useRef<Group>(null),
@@ -41,7 +43,12 @@ export function CatModel({
     tail.current.rotation.z = Math.sin(runtime.elapsed * 3) * 0.15;
   });
   return (
-    <group ref={group} position={[0, -0.62, 0]} name={`cat-${catType}`}>
+    <group
+      ref={group}
+      position={[0, -0.62 * scale, 0]}
+      scale={scale}
+      name={`cat-${catType}`}
+    >
       <group ref={body}>
         <CatAccessories equipped={equipped} />
         <SmoothShape

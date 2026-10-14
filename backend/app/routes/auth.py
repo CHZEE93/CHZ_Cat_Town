@@ -24,7 +24,7 @@ def signup(data: Signup, request: Request, response: Response, db: Session = Dep
     db.add(user)
     try:
         db.flush()
-        db.add_all([Character(user_id=user.id, cat_type=data.catType), Wallet(user_id=user.id, balance=STARTING_COINS), CoinTransaction(user_id=user.id, amount=STARTING_COINS, reason="signup")])
+        db.add_all([Character(user_id=user.id, cat_type=data.catType, scale=data.scale), Wallet(user_id=user.id, balance=STARTING_COINS), CoinTransaction(user_id=user.id, amount=STARTING_COINS, reason="signup")])
         session = issue_session(db, user, response, request)
         db.commit()
     except IntegrityError:

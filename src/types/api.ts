@@ -3,6 +3,7 @@ export type Slot = "head" | "neck" | "back";
 export type Equipment = Record<Slot, string | null>;
 export type Character = {
   catType: CatType;
+  scale: number;
   equipped: Equipment;
   version: number;
 };

@@ -83,7 +83,10 @@ test("account, profile, board CRUD, purchases, wardrobe and login persistence", 
     .getByLabel("내용", { exact: true })
     .fill("반가워요!\n<script>alert('plain text')</script>");
   await page.getByRole("button", { name: "게시글 저장" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: new RegExp(postTitle) }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: new RegExp(postTitle) })
+    .click();
   await expect(page.locator(".post-body")).toContainText("<script>");
   await page.getByRole("button", { name: "수정", exact: true }).click();
   await page.getByLabel("제목", { exact: true }).fill(editedTitle);
@@ -92,11 +95,16 @@ test("account, profile, board CRUD, purchases, wardrobe and login persistence", 
   await page.reload();
   await expect(page.locator(".home-posts")).toContainText(editedTitle);
   await page.getByRole("button", { name: "게시판 전체 보기" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: new RegExp(editedTitle) }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: new RegExp(editedTitle) })
+    .click();
   await page.getByRole("button", { name: "삭제", exact: true }).click();
   await page.getByRole("button", { name: "삭제 확인", exact: true }).click();
   await expect(
-    page.getByRole("dialog").getByRole("button", { name: new RegExp(editedTitle) }),
+    page
+      .getByRole("dialog")
+      .getByRole("button", { name: new RegExp(editedTitle) }),
   ).toHaveCount(0);
   await close(page);
   await page.getByRole("button", { name: /내 고양이 보기/ }).click();
@@ -206,4 +214,49 @@ test("expired session clears account and equipment", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: /여행자/, level: 1 }),
   ).toBeVisible();
+});
+
+test("size preview cancel save and account persistence", async ({ page }) => {
+  const email = await signup(page);
+  const slider = page.getByRole("slider", { name: "고양이 크기", exact: true });
+  await expect(slider).toHaveValue("1");
+  await slider.focus();
+  await slider.press("End");
+  await page.getByRole("button", { name: "변경 취소", exact: true }).click();
+  await expect(slider).toHaveValue("1");
+  await slider.focus();
+  await slider.press("End");
+  await close(page);
+  await page.getByRole("button", { name: /내 고양이 보기/ }).click();
+  await expect(slider).toHaveValue("1");
+  await slider.focus();
+  await slider.press("End");
+  await page.getByRole("button", { name: "외형 저장", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "고양이 외형을 저장했어요",
+  );
+  await page.locator(".modal").evaluate((element) => element.scrollTo(0, 0));
+  await page.screenshot({ path: "test-results/size-wardrobe.png" });
+  await page.getByRole("button", { name: "로그아웃", exact: true }).click();
+  await page
+    .locator(".sidebar")
+    .getByRole("button", { name: "로그인 / 회원가입" })
+    .click();
+  await page.getByLabel("이메일", { exact: true }).fill(email);
+  await page.getByLabel("비밀번호", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "로그인하기", exact: true }).click();
+  await expect(slider).toHaveValue("1.5");
+  await close(page);
+  await page.goto("/?debug=1#/game");
+  await page.waitForFunction(
+    () => !!window.__CHZ_TOWN__,
+    {},
+    { timeout: 60000 },
+  );
+  await expect
+    .poll(() => page.evaluate(() => window.__CHZ_TOWN__!().scale))
+    .toBe(1.5);
+  await expect
+    .poll(() => page.evaluate(() => window.__CHZ_TOWN__!().colliderRadius))
+    .toBeCloseTo(0.51, 4);
 });

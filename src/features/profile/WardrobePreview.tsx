@@ -11,7 +11,13 @@ function PreviewCat({ character }: { character: Character }) {
   });
   return (
     <RuntimeContext.Provider value={runtime}>
-      <CatModel catType={character.catType} equipped={character.equipped} />
+      <group position={[0, 0.64 * (character.scale - 1), 0]}>
+        <CatModel
+          catType={character.catType}
+          equipped={character.equipped}
+          scale={character.scale}
+        />
+      </group>
     </RuntimeContext.Provider>
   );
 }
@@ -22,7 +28,7 @@ export default function WardrobePreview({
 }) {
   return (
     <Canvas
-      camera={{ position: [2.6, 1.7, 3.5], fov: 35 }}
+      camera={{ position: [3.2, 2.2, 4.3], fov: 40 }}
       dpr={[1, 1.5]}
       gl={{ antialias: true }}
       aria-label="고양이 외형 3D 미리보기"

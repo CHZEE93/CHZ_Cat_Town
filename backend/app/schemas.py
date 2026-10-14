@@ -9,6 +9,7 @@ class Login(Input):
 class Signup(Login):
     nickname: str = Field(min_length=1, max_length=24, pattern=r"\S")
     catType: CatType = "orange"
+    scale: float = Field(default=1.0, ge=0.75, le=1.5, allow_inf_nan=False)
 class ProfileUpdate(Input):
     nickname: str = Field(min_length=1, max_length=24, pattern=r"\S")
     bio: str = Field(max_length=300)
@@ -18,6 +19,7 @@ class Equipment(Input):
     back: str | None = Field(default=None, max_length=40)
 class CharacterUpdate(Input):
     catType: CatType
+    scale: float | None = Field(default=None, ge=0.75, le=1.5, allow_inf_nan=False)
     equipped: Equipment
     version: int = Field(ge=1)
 class PostInput(Input):

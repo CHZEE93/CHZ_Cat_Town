@@ -1,4 +1,6 @@
 import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useTownRuntime } from "../runtime/TownRuntime";
 import {
   CapsuleCollider,
   RigidBody,
@@ -12,11 +14,24 @@ import type { Equipment } from "../../types/api";
 export function CatPlayer({
   catType,
   equipped,
+  scale,
 }: {
   catType: CatType;
   equipped: Equipment;
+  scale: number;
 }) {
   const body = useRef<RapierRigidBody>(null);
+  const runtime = useTownRuntime();
+  useFrame(() => {
+    // Rapier creates/disposes bodies in effects; update only after the body is live.
+    if (!body.current?.isValid()) return;
+    const position = body.current.translation();
+    if (Math.abs(position.y - SPAWN.y * scale) > 0.0001)
+      body.current.setTranslation({ ...position, y: SPAWN.y * scale }, true);
+    runtime.scale = scale;
+    if (body.current.numColliders())
+      runtime.colliderRadius = body.current.collider(0).radius();
+  }, -3);
   usePlayerMovement(body);
   return (
     <RigidBody
@@ -33,8 +48,12 @@ export function CatPlayer({
       ccd
       canSleep={false}
     >
-      <CapsuleCollider args={[0.26, PLAYER_RADIUS]} friction={0} />
-      <CatModel catType={catType} equipped={equipped} />
+      <CapsuleCollider
+        key={scale}
+        args={[0.26 * scale, PLAYER_RADIUS * scale]}
+        friction={0}
+      />
+      <CatModel catType={catType} equipped={equipped} scale={scale} />
     </RigidBody>
   );
 }

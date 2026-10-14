@@ -18,7 +18,16 @@ def test_database():
         connection.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
     os.environ["DATABASE_URL"] = url.set(database=name).render_as_string(hide_password=False)
     try:
+        # Verify upgrades preserve a pre-size-control character as well as fresh DBs.
+        command.upgrade(Config("alembic.ini"), "b7df617aefca")
+        from app.database import engine
+        from sqlalchemy import text
+        with engine.begin() as connection:
+            connection.execute(text("INSERT INTO users (id, email, password_hash, nickname, bio, created_at) VALUES (1, 'migration@example.com', 'test-placeholder', 'migration', '', now())"))
+            connection.execute(text("INSERT INTO characters (user_id, cat_type, version) VALUES (1, 'white', 7)"))
         command.upgrade(Config("alembic.ini"), "head")
+        with engine.connect() as connection:
+            assert connection.execute(text("SELECT cat_type, version, scale FROM characters WHERE user_id = 1")).one() == ("white", 7, 1.0)
         from app.seed import seed
         seed()
         yield
