@@ -1,4 +1,5 @@
 import type { Interactable } from "../interaction/Interactable";
+import { REWARD_PLACES } from "./rewards";
 export type { Interactable } from "../interaction/Interactable";
 export type { InteractionType as Place } from "../interaction/Interactable";
 // World units, seconds. Y is height, X/Z is the walkable plane.
@@ -24,6 +25,11 @@ export const GATHERING_SPOTS = [
   { x: 24, z: -12, radius: 6.5, title: "SUNNY GARDEN" },
 ] as const;
 export const PLACES: Interactable[] = [
+  ...REWARD_PLACES.map((place) => ({
+    ...place,
+    type: "rewards" as const,
+    interactionRadius: 1.5,
+  })),
   {
     id: "board",
     type: "board",

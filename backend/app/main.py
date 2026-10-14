@@ -2,11 +2,11 @@ from fastapi import FastAPI, APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from .database import SessionLocal
-from .routes import auth, account, posts, shop
+from .routes import auth, account, posts, shop, rewards
 from .security import check_origin
 app = FastAPI(title="CHZ Cat Town API", version="0.3.0")
 api = APIRouter(prefix="/api", dependencies=[Depends(check_origin)])
-for router in [auth.router, account.router, posts.router, shop.router]:
+for router in [auth.router, account.router, posts.router, shop.router, rewards.router]:
     api.include_router(router)
 app.include_router(api)
 

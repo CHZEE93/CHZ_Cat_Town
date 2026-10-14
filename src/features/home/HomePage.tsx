@@ -6,6 +6,7 @@ import { CAT_TYPES } from "../../game/config/cats";
 import { CatPreview } from "../../components/CatSelector";
 import { useAuth } from "../../stores/auth";
 import { AuthPrompt } from "../auth/AuthModal";
+import { RewardsCard } from "../rewards/Rewards";
 function WelcomeIllustration() {
   return (
     <svg className="welcome-art" viewBox="0 0 440 280" aria-hidden="true">
@@ -98,6 +99,7 @@ export function HomePage() {
         <WelcomeIllustration />
       </section>
       {!user && <AuthPrompt />}
+      <RewardsCard />
       <div className="dashboard-grid">
         <section className="dashboard-card stories-card">
           <div className="card-heading">

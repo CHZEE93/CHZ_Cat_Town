@@ -6,6 +6,7 @@ import { GamePage } from "./components/GamePage";
 import { useFullscreen } from "./components/useFullscreen";
 import { Board, Shop, Profile, Guide } from "./features/Community";
 import { useUI } from "./stores/ui";
+import { RewardsModal } from "./features/rewards/Rewards";
 import { AuthModal } from "./features/auth/AuthModal";
 export default function App() {
   const page = usePage();
@@ -100,6 +101,8 @@ export default function App() {
         <Guide />
       ) : modal === "auth" ? (
         <AuthModal />
+      ) : modal === "rewards" ? (
+        <RewardsModal />
       ) : null}
     </div>
   );

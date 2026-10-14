@@ -1,8 +1,43 @@
 import type { Equipment } from "../../types/api";
 import { Box, SmoothShape } from "../environment/Primitives";
 export function CatAccessories({ equipped }: { equipped: Equipment }) {
+  const mailBag = equipped.back === "blue_mailbag";
   return (
     <>
+      {equipped.head === "flower_crown" && (
+        <group position={[0, 1.48, 0.47]}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <SmoothShape
+              key={i}
+              position={[
+                Math.cos((i * Math.PI * 2) / 5) * 0.14,
+                0.1,
+                Math.sin((i * Math.PI * 2) / 5) * 0.14,
+              ]}
+              scale={[0.12, 0.07, 0.12]}
+              color="#df9ca5"
+            />
+          ))}
+          <SmoothShape
+            position={[0, 0.14, 0]}
+            scale={[0.07, 0.06, 0.07]}
+            color="#ecd094"
+          />
+        </group>
+      )}
+      {equipped.neck === "mint_scarf" && (
+        <group position={[0, 0.67, 0.39]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <torusGeometry args={[0.34, 0.075, 12, 32]} />
+            <meshStandardMaterial color="#9bbdb0" />
+          </mesh>
+          <Box
+            position={[0.15, -0.16, 0.29]}
+            size={[0.13, 0.3, 0.07]}
+            color="#8eada1"
+          />
+        </group>
+      )}
       {equipped.head === "straw_hat" && (
         <group
           name="accessory-straw-hat"
@@ -48,7 +83,7 @@ export function CatAccessories({ equipped }: { equipped: Equipment }) {
           />
         </group>
       )}
-      {equipped.back === "tiny_backpack" && (
+      {(equipped.back === "tiny_backpack" || mailBag) && (
         <group
           name="accessory-tiny-backpack"
           position={[0, 1.02, -0.25]}
@@ -57,17 +92,17 @@ export function CatAccessories({ equipped }: { equipped: Equipment }) {
           <Box
             position={[0, 0.08, 0]}
             size={[0.48, 0.34, 0.43]}
-            color="#789878"
+            color={mailBag ? "#729bb0" : "#789878"}
           />
           <Box
             position={[0, 0.27, 0.01]}
             size={[0.5, 0.08, 0.44]}
-            color="#91ae8b"
+            color={mailBag ? "#92b6c4" : "#91ae8b"}
           />
           <Box
             position={[0, 0.06, -0.23]}
             size={[0.31, 0.2, 0.08]}
-            color="#a2b693"
+            color={mailBag ? "#aecad2" : "#a2b693"}
           />
           <Box
             position={[0, 0.14, -0.28]}

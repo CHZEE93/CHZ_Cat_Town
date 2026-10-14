@@ -260,3 +260,163 @@ test("size preview cancel save and account persistence", async ({ page }) => {
     .poll(() => page.evaluate(() => window.__CHZ_TOWN__!().colliderRadius))
     .toBeCloseTo(0.51, 4);
 });
+
+test.describe("town reward journeys", () => {
+  test("daily checkin and post cat delivery through real town interactions", async ({
+    page,
+  }) => {
+    test.setTimeout(360000);
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await signup(page);
+    await close(page);
+    await page
+      .getByRole("button", { name: "출석하기 · +100", exact: true })
+      .click();
+    await expect(page.getByRole("status")).toContainText("+100 코인");
+    await expect(
+      page.getByRole("button", { name: "오늘 출석 완료" }),
+    ).toBeDisabled();
+    await page.goto("/?debug=1#/game");
+    await page.waitForFunction(
+      () => !!window.__CHZ_TOWN__,
+      {},
+      { timeout: 60000 },
+    );
+    const cos = 21 / Math.hypot(13, 21),
+      sin = 13 / Math.hypot(13, 21);
+    async function walk(x: number, z: number) {
+      for (let i = 0; i < 100; i++) {
+        const position = await page.evaluate(
+          () => window.__CHZ_TOWN__!().position,
+        );
+        const dx = x - position.x,
+          dz = z - position.z;
+        const distance = Math.hypot(dx, dz);
+        if (distance < 0.35) return;
+        const right = cos * dx - sin * dz,
+          down = sin * dx + cos * dz;
+        const keys: string[] = [];
+        if (Math.abs(right) > Math.abs(down) * 0.414)
+          keys.push(right > 0 ? "d" : "a");
+        if (Math.abs(down) > Math.abs(right) * 0.414)
+          keys.push(down > 0 ? "s" : "w");
+        await Promise.all(keys.map((key) => page.keyboard.down(key)));
+        await page.waitForTimeout(
+          Math.min(350, Math.max(25, (distance / 4.8) * 650)),
+        );
+        await Promise.all(keys.map((key) => page.keyboard.up(key)));
+      }
+      throw new Error(`Could not reach ${x},${z}`);
+    }
+    await walk(-3, 9);
+    await walk(-3, -2);
+    await walk(-4, -2);
+    await expect(page.locator(".interaction")).toContainText("우체부 모찌");
+    await page.keyboard.press("e");
+    await expect(page.getByRole("dialog")).toContainText(
+      "우체부 모찌의 편지 배달",
+    );
+    await page
+      .getByRole("button", { name: "심부름 받기", exact: true })
+      .click();
+    await expect(
+      page.getByRole("button", { name: "배달 진행 중", exact: true }),
+    ).toBeDisabled();
+    const session = await (await page.request.get("/api/auth/session")).json();
+    const accepted = await (
+      await page.request.get("/api/rewards/today")
+    ).json();
+    const assignment = accepted.quests.find(
+      (quest: { code: string }) => quest.code === "mail_delivery",
+    ).assignmentId;
+    await close(page);
+    await page.reload();
+    await page.waitForFunction(
+      () => !!window.__CHZ_TOWN__,
+      {},
+      { timeout: 60000 },
+    );
+    await expect(page.locator(".quest-tracker")).toContainText("집 옆 우편함");
+    const restored = await (
+      await page.request.get("/api/rewards/today")
+    ).json();
+    expect(
+      restored.quests.find(
+        (quest: { code: string }) => quest.code === "mail_delivery",
+      ).assignmentId,
+    ).toBe(assignment);
+    await walk(-3, 9);
+    await walk(-3, -3.2);
+    await walk(-3, -8);
+    await expect(page.locator(".interaction")).toContainText("집 옆 우편함");
+    await page.keyboard.press("e");
+    await page
+      .getByRole("button", { name: "배달 완료하기 · +80", exact: true })
+      .click();
+    await expect(page.getByRole("dialog").getByRole("status")).toContainText(
+      "+80 코인",
+    );
+    await expect(page.getByRole("dialog")).toContainText(
+      "오늘의 배달을 마쳤어요",
+    );
+    const wallet = await (await page.request.get("/api/wallet/me")).json();
+    expect(wallet.balance).toBe(1180);
+    const replay = await page.request.post("/api/rewards/quests/complete", {
+      headers: {
+        Origin: "http://localhost:5181",
+        "X-CSRF-Token": session.csrfToken,
+      },
+      data: {
+        dayKey: accepted.dayKey,
+        assignmentId: assignment,
+        targetId: "home_mailbox",
+      },
+    });
+    expect((await replay.json()).replayed).toBe(true);
+    await close(page);
+    await page.screenshot({ path: "test-results/post-cat-delivery.png" });
+    await page.goto("/#/home");
+    await expect(page.locator(".reward-summary")).toContainText("180 / 550");
+    await page.screenshot({
+      path: "test-results/rewards-home.png",
+      fullPage: true,
+    });
+    expect(errors).toEqual([]);
+  });
+});
+
+for (const [name, id, slot] of [
+  ["봄꽃 머리장식", "flower_crown", "머리"],
+  ["민트 목도리", "mint_scarf", "목"],
+  ["하늘빛 우편 가방", "blue_mailbag", "등"],
+]) {
+  test(`reward shop accessory purchase and equipment: ${name}`, async ({
+    page,
+  }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await signup(page);
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: /상점 둘러보기/ })
+      .click();
+    await page
+      .getByRole("button", { name: `${name} 구매`, exact: true })
+      .click();
+    await expect(
+      page.getByRole("button", { name: `${name} 보유 중`, exact: true }),
+    ).toBeDisabled();
+    await page.getByRole("button", { name: /내 옷장/ }).click();
+    await page.getByLabel(slot, { exact: true }).selectOption(id);
+    await page.getByRole("button", { name: "외형 저장", exact: true }).click();
+    await expect(page.getByRole("status")).toContainText(
+      "고양이 외형을 저장했어요",
+    );
+    await page.locator(".modal").evaluate((element) => element.scrollTo(0, 0));
+    await page.screenshot({ path: `test-results/reward-accessory-${id}.png` });
+    const session = await (await page.request.get("/api/auth/session")).json();
+    expect(Object.values(session.character.equipped)).toContain(id);
+    expect(errors).toEqual([]);
+  });
+}

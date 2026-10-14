@@ -33,6 +33,10 @@ export function useInteraction() {
         !nearest.current
       )
         return;
+      if (nearest.current.type === "rewards") {
+        eventBus.emit("OPEN_REWARD", nearest.current.id);
+        return;
+      }
       eventBus.emit(
         (
           {

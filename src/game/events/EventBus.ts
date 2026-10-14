@@ -8,6 +8,7 @@ type Events = {
   OPEN_BOARD: undefined;
   OPEN_SHOP: undefined;
   OPEN_PROFILE: undefined;
+  OPEN_REWARD: string;
   UI_BLOCKED: boolean;
   NEARBY: Interactable | null;
   READY: undefined;

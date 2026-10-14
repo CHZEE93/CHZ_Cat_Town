@@ -176,7 +176,7 @@ function ShopContent() {
         </div>
       )}
       <div className="notice">
-        테스트 코인은 가입 시 1,000개 지급되며 현금으로 충전할 수 없어요.
+        가입 선물과 출석·산책·배달로 코인을 모아보세요.
       </div>
     </Modal>
   );

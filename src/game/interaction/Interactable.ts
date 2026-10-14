@@ -1,4 +1,4 @@
-export type InteractionType = "board" | "shop" | "profile";
+export type InteractionType = "board" | "shop" | "profile" | "rewards";
 export interface Interactable {
   id: string;
   type: InteractionType;

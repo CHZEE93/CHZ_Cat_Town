@@ -47,3 +47,33 @@ export type CoinTransaction = {
   reason: string;
   createdAt: string;
 };
+export type Quest = {
+  code: string;
+  title: string;
+  npc: string;
+  description: string;
+  sourceId: string;
+  targetId: string;
+  targetName: string;
+  amount: number;
+  status: "available" | "active" | "completed";
+  assignmentId: string | null;
+  readyAt: string | null;
+};
+export type RewardDay = {
+  dayKey: string;
+  resetsAt: string;
+  dailyLimit: number;
+  earned: number;
+  checkin: boolean;
+  walkComplete: boolean;
+  stamps: { id: string; name: string; amount: number; claimed: boolean }[];
+  quests: Quest[];
+};
+export type RewardResult = {
+  claimId: string;
+  amount: number;
+  balance: number;
+  replayed: boolean;
+  today: RewardDay;
+};

@@ -38,6 +38,7 @@ export function GameCanvas({ active }: { active: boolean }) {
       eventBus.on("OPEN_BOARD", () => store.open("board")),
       eventBus.on("OPEN_SHOP", () => store.open("shop")),
       eventBus.on("OPEN_PROFILE", () => store.open("profile")),
+      eventBus.on("OPEN_REWARD", store.openReward),
       eventBus.on("NEARBY", store.setNearby),
       eventBus.on("READY", () => {
         store.setReady();

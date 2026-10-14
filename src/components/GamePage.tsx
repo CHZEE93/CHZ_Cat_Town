@@ -1,5 +1,6 @@
 import { GameCanvas } from "./GameCanvas";
 import { useUI } from "../stores/ui";
+import { QuestTracker } from "../features/rewards/Rewards";
 export function GamePage({
   active,
   expanded,
@@ -39,6 +40,7 @@ export function GamePage({
           </div>
         )}
         <div className="map-caption">작은 마을, 함께할 이야기.</div>
+        {active && <QuestTracker />}
       </section>
       <div className="game-controls">
         <div className="controls">

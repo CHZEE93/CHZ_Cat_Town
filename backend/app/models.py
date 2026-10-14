@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from sqlalchemy import String, Integer, Float, DateTime, ForeignKey, ForeignKeyConstraint, CheckConstraint, UniqueConstraint, Text, Boolean
+from datetime import date, datetime, timezone
+from sqlalchemy import String, Integer, Float, Date, DateTime, ForeignKey, ForeignKeyConstraint, CheckConstraint, UniqueConstraint, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from .database import Base
 
@@ -91,6 +91,8 @@ class CoinTransaction(Base):
     amount: Mapped[int] = mapped_column(Integer)
     reason: Mapped[str] = mapped_column(String(30))
     purchase_id: Mapped[str | None] = mapped_column(ForeignKey("purchases.id"), unique=True)
+    reward_claim_id: Mapped[str | None] = mapped_column(ForeignKey("reward_claims.id", name="fk_coin_reward"))
+    __table_args__ = (UniqueConstraint("reward_claim_id", name="uq_coin_reward"),)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 class Post(Base):
@@ -109,3 +111,23 @@ class AuthRateLimit(Base):
     key: Mapped[str] = mapped_column(String(64), primary_key=True)
     window: Mapped[int] = mapped_column(Integer)
     count: Mapped[int] = mapped_column(Integer)
+
+class RewardClaim(Base):
+    __tablename__ = "reward_claims"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    day_key: Mapped[date] = mapped_column(Date)
+    reward_code: Mapped[str] = mapped_column(String(30))
+    amount: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    __table_args__ = (UniqueConstraint("user_id", "day_key", "reward_code", name="unique_daily_reward"), CheckConstraint("amount > 0", name="positive_reward"))
+
+class QuestAssignment(Base):
+    __tablename__ = "quest_assignments"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    day_key: Mapped[date] = mapped_column(Date)
+    quest_code: Mapped[str] = mapped_column(String(30))
+    accepted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (UniqueConstraint("user_id", "day_key", "quest_code", name="unique_daily_quest"),)

@@ -1,4 +1,5 @@
 import { request } from "./client";
+import type { RewardDay, RewardResult } from "../types/api";
 import type {
   Character,
   CoinTransaction,
@@ -16,6 +17,27 @@ const json = (method: string, data?: unknown): RequestInit => ({
   body: data === undefined ? undefined : JSON.stringify(data),
 });
 export const townService = {
+  rewards: ({ signal }: { signal?: AbortSignal } = {}) =>
+    request<RewardDay>("/rewards/today", { signal }),
+  checkin: (dayKey: string) =>
+    request<RewardResult>("/rewards/checkin", json("POST", { dayKey })),
+  stamp: (dayKey: string, spotId: string) =>
+    request<RewardResult>(
+      "/rewards/walk/stamps",
+      json("POST", { dayKey, spotId }),
+    ),
+  completeWalk: (dayKey: string) =>
+    request<RewardResult>("/rewards/walk/complete", json("POST", { dayKey })),
+  acceptQuest: (dayKey: string, questCode: string) =>
+    request<RewardDay>(
+      "/rewards/quests/accept",
+      json("POST", { dayKey, questCode }),
+    ),
+  deliverQuest: (dayKey: string, assignmentId: string, targetId: string) =>
+    request<RewardResult>(
+      "/rewards/quests/complete",
+      json("POST", { dayKey, assignmentId, targetId }),
+    ),
   session: () => request<Session>("/auth/session"),
   login: (email: string, password: string) =>
     request<Session>("/auth/login", json("POST", { email, password })),

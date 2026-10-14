@@ -18,6 +18,7 @@ import { Plaza } from "../environment/Plaza";
 import { Details } from "../environment/Details";
 import { GatheringSpaces } from "../environment/GatheringSpaces";
 import { TownLighting } from "../environment/TownLighting";
+import { RewardStations } from "../environment/RewardStations";
 import { CatPlayer } from "../player/CatPlayer";
 import { FollowCamera } from "../camera/FollowCamera";
 import { useInteraction } from "../interaction/useInteraction";
@@ -75,6 +76,7 @@ function TownContents() {
       <Plaza />
       <Details />
       <GatheringSpaces />
+      <RewardStations />
       <CatPlayer catType={catType} equipped={equipped} scale={scale} />
       <FollowCamera />
       {import.meta.env.DEV && <Diagnostics />}

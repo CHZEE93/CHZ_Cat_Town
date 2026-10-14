@@ -355,7 +355,17 @@ function ResidentProfile({ user }: { user: User }) {
             {transactions.data.slice(0, 5).map((entry) => (
               <li key={entry.id}>
                 <span>
-                  {entry.reason === "signup" ? "가입 선물" : "상점 구매"}
+                  {(
+                    {
+                      signup: "가입 선물",
+                      purchase: "상점 구매",
+                      daily_checkin: "출석 보상",
+                      walk_stamp: "산책 도장",
+                      walk_complete: "산책 완료",
+                      mail_delivery: "편지 배달",
+                      shop_errand: "상점 심부름",
+                    } as Record<string, string>
+                  )[entry.reason] ?? "코인 활동"}
                   <small>
                     {new Date(entry.createdAt).toLocaleDateString("ko-KR")}
                   </small>
